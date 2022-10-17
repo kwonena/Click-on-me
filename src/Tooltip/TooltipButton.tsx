@@ -25,7 +25,7 @@ const TooltipButton = ({ trigger }: any) => {
     return () => {
       document.removeEventListener("mousedown", onClickOutside);
     };
-  }, []);
+  }, [clicked, hovered]);
 
   // 클릭한 상태에서 다른 곳을 클릭하면 팝업이 사라집니다
   const onClickOutside = (e: MouseEvent) => {
@@ -63,7 +63,7 @@ const TooltipButton = ({ trigger }: any) => {
 
   return (
     <>
-      <PopUpContainer>
+      <PopUpContainer ref={messageRef}>
         <PopUpButton>Click on me</PopUpButton>
         <CircleIcon
           onClick={onClickCircle}
@@ -90,7 +90,6 @@ const TooltipButton = ({ trigger }: any) => {
           className="circle-right"
         />
         <TooltipMessage
-          ref={messageRef}
           position={position}
           trigger={trigger}
           message={`This is ${trigger} message`}
