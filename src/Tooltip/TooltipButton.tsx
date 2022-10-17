@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import TooltipMessage from "./TooltipMessage";
 
@@ -12,23 +12,41 @@ interface TooltipProps {
 type PositionType = "top" | "bottom" | "left" | "right";
 type TriggerType = "hover" | "click";
 
-const TooltipButton = () => {
+const TooltipButton = ({ trigger }: any) => {
+  const messageRef = useRef<any>(null);
+
   const [clicked, setClicked] = useState<boolean>(false);
+  const [hovered, setHovered] = useState<boolean>(false);
   const [position, setPosition] = useState<TooltipProps["position"]>("top");
-  const [trigger, setTrigger] = useState<TooltipProps["trigger"]>("hover");
+  // const [trigger, setTrigger] = useState<TooltipProps["trigger"]>("hover");
+
+  useEffect(() => {
+    document.addEventListener("mousedown", onClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", onClickOutside);
+    };
+  }, []);
+
+  // 클릭한 상태에서 다른 곳을 클릭하면 팝업이 사라집니다
+  const onClickOutside = (e: MouseEvent) => {
+    if (clicked && !messageRef?.current?.contains(e.target as Node))
+      setClicked(false);
+  };
 
   const onClickCircle = (e: any) => {
+    if (trigger !== "click") return;
     const positionName: PositionType = getClassName(e);
     setPosition(positionName);
-    setClicked(!clicked);
-    setTrigger("click");
+    setClicked(true);
+    // setTrigger("click");
   };
 
   const onHoverCircle = (e: any) => {
+    if (trigger !== "hover") return;
     const positionName: PositionType = getClassName(e);
     setPosition(positionName);
-    setClicked(!clicked);
-    setTrigger("hover");
+    setHovered(true);
+    // setTrigger("hover");
   };
 
   const getClassName = (e: any) => {
@@ -50,32 +68,34 @@ const TooltipButton = () => {
         <CircleIcon
           onClick={onClickCircle}
           onMouseOver={onHoverCircle}
-          onMouseLeave={() => setClicked(!clicked)}
+          onMouseLeave={() => setHovered(false)}
           className="circle-top"
         />
         <CircleIcon
           onClick={onClickCircle}
           onMouseOver={onHoverCircle}
-          onMouseLeave={() => setClicked(!clicked)}
+          onMouseLeave={() => setHovered(false)}
           className="circle-bottom"
         />
         <CircleIcon
           onClick={onClickCircle}
           onMouseOver={onHoverCircle}
-          onMouseLeave={() => setClicked(!clicked)}
+          onMouseLeave={() => setHovered(false)}
           className="circle-left"
         />
         <CircleIcon
           onClick={onClickCircle}
           onMouseOver={onHoverCircle}
-          onMouseLeave={() => setClicked(!clicked)}
+          onMouseLeave={() => setHovered(false)}
           className="circle-right"
         />
         <TooltipMessage
+          ref={messageRef}
           position={position}
           trigger={trigger}
-          message={"This is message content"}
+          message={`This is ${trigger} message`}
           clicked={clicked}
+          hovered={hovered}
         />
       </PopUpContainer>
     </>
